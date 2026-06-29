@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Monthly Budget</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>💰 Set Monthly Budget</h1>
+
+    <p class="welcome">
+        Enter your monthly budget below.
+    </p>
+
+    <form method="POST">
+
+        <label><strong>Monthly Budget (₹)</strong></label>
+
+        <input
+            type="number"
+            name="budget"
+            value="{{ budget }}"
+            placeholder="Enter your budget"
+            required>
+
+        <br><br>
+
+        <button type="submit">
+            💾 Save Budget
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/">
+        <button class="home-btn">
+            🏠 Back to Home
+        </button>
+    </a>
+
+    <p style="text-align:center; margin-top:25px;">
+        Made with ❤️ for Mumma
+    </p>
+
+</div>
+
+</body>
+</html>

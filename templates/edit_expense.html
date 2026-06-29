@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Expense</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>✏️ Edit Expense</h1>
+
+    <p class="welcome">
+        Update your expense details
+    </p>
+
+    <form method="POST">
+
+        <label><strong>💵 Amount (₹)</strong></label>
+        <input
+            type="number"
+            name="amount"
+            value="{{ expense[1] }}"
+            required>
+
+        <br><br>
+
+        <label><strong>📂 Category</strong></label>
+
+        <select name="category" required>
+            <option value="Groceries" {% if expense[2]=="Groceries" %}selected{% endif %}>🥬 Groceries</option>
+            <option value="Milk" {% if expense[2]=="Milk" %}selected{% endif %}>🥛 Milk</option>
+            <option value="Vegetables" {% if expense[2]=="Vegetables" %}selected{% endif %}>🥕 Vegetables</option>
+            <option value="Electricity" {% if expense[2]=="Electricity" %}selected{% endif %}>💡 Electricity</option>
+            <option value="Transport" {% if expense[2]=="Transport" %}selected{% endif %}>🚌 Transport</option>
+            <option value="Medical" {% if expense[2]=="Medical" %}selected{% endif %}>💊 Medical</option>
+            <option value="Others" {% if expense[2]=="Others" %}selected{% endif %}>🛒 Others</option>
+        </select>
+
+        <br><br>
+
+        <label><strong>📝 Note</strong></label>
+
+        <input
+            type="text"
+            name="note"
+            value="{{ expense[3] }}">
+
+        <br><br>
+
+        <button type="submit">
+            💾 Update Expense
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/history">
+        <button class="home-btn">
+            📋 Back to History
+        </button>
+    </a>
+
+    <p style="text-align:center; margin-top:25px;">
+        Made with ❤️ for Mumma
+    </p>
+
+</div>
+
+</body>
+</html>

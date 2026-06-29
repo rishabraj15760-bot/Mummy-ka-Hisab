@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>➕ Add Expense</h1>
+
+    <p class="welcome">
+        Record a new household expense
+    </p>
+
+    <form action="/add" method="POST">
+
+        <label><strong>💵 Amount (₹)</strong></label>
+        <input
+            type="number"
+            name="amount"
+            placeholder="Enter Amount"
+            required>
+
+        <br><br>
+
+        <label><strong>📂 Category</strong></label>
+
+        <select name="category">
+            <option>🥬 Groceries</option>
+            <option>🥛 Milk</option>
+            <option>🥕 Vegetables</option>
+            <option>💡 Electricity</option>
+            <option>🚌 Transport</option>
+            <option>💊 Medical</option>
+            <option>🛒 Others</option>
+        </select>
+
+        <br><br>
+
+        <label><strong>📝 Note</strong></label>
+
+        <input
+            type="text"
+            name="note"
+            placeholder="Optional">
+
+        <br><br>
+
+        <button type="submit">
+            💾 Save Expense
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/">
+        <button class="home-btn">
+            🏠 Back to Home
+        </button>
+    </a>
+
+    <p style="text-align:center; margin-top:25px;">
+        Made with ❤️ for Mumma
+    </p>
+
+</div>
+
+</body>
+</html>

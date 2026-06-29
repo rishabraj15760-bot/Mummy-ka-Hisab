@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense History</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>📋 Expense History</h1>
+    <p class="welcome">Every expense you've added</p>
+    <p>Total Records: {{ expenses|length }}</p>
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Note</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+
+        {% for expense in expenses %}
+
+        <tr>
+            <td>{{ expense[0] }}</td>
+            <td>₹{{ "%.0f"|format(expense[1]) }}</td>
+            <td>{{ expense[2] }}</td>
+            <td>{{ expense[3] }}</td>
+            <td>{{ expense[4] }}</td>
+
+            <td>
+
+                <a href="/edit/{{ expense[0] }}">
+                    <button class="edit-btn">✏ Edit</button>
+                </a>
+
+                <a href="/delete/{{ expense[0] }}" onclick="return confirm('Delete this expense?')">
+                    <button class="delete-btn">🗑 Delete</button>
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    <br>
+
+    <a href="/">
+        <button class="home-btn">🏠 Home</button>
+    </a>
+
+    <p style="text-align:center; margin-top:30px;">
+        Made with ❤️ for Mumma
+    </p>
+
+</div>
+
+</body>
+</html>
