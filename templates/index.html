@@ -6,6 +6,13 @@
     <title>Home Expense Manager</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="manifest" href="/static/manifest.json">
+<meta name="theme-color" content="#000000">
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/service-worker.js');
+  }
+</script>
 </head>
 
 <body>
