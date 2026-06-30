@@ -7,6 +7,8 @@ import os
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-this")
+
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -14,6 +16,8 @@ def login_required(f):
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return decorated_function
+
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -70,22 +74,22 @@ def login():
 def logout():
     session.clear()
     return redirect("/login")
+
+
 @app.route("/")
 @login_required
 def home():
+    user_id = session["user_id"]
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT COALESCE(SUM(amount), 0) FROM expenses")
+    cursor.execute("SELECT COALESCE(SUM(amount), 0) FROM expenses WHERE user_id=%s", (user_id,))
     total = cursor.fetchone()[0]
 
-    cursor.execute("SELECT amount FROM budget WHERE id=1")
+    cursor.execute("SELECT amount FROM budget WHERE user_id=%s", (user_id,))
     row = cursor.fetchone()
+    budget = row[0] if row else 0
 
-    if row:
-        budget = row[0]
-    else:
-        budget = 0
     cursor.close()
     conn.close()
 
@@ -96,13 +100,15 @@ def home():
     total = f"{total:,.0f}"
     budget = f"{budget:,.0f}"
     remaining = f"{remaining:,.0f}"
-    return render_template("index.html", total=total, budget=budget, remaining = remaining)
+
+    return render_template("index.html", total=total, budget=budget, remaining=remaining)
+
 
 @app.route("/add", methods=["GET", "POST"])
 @login_required
 def add():
     if request.method == "POST":
-
+        user_id = session["user_id"]
         amount = request.form["amount"]
         category = request.form["category"]
         note = request.form["note"]
@@ -111,8 +117,8 @@ def add():
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT INTO expenses (amount, category, note, date) VALUES (%s, %s, %s, CURRENT_DATE)",
-            (amount, category, note)
+            "INSERT INTO expenses (amount, category, note, date, user_id) VALUES (%s, %s, %s, CURRENT_DATE, %s)",
+            (amount, category, note, user_id)
         )
 
         conn.commit()
@@ -121,38 +127,44 @@ def add():
 
         return redirect("/")
 
-        return redirect("/")
-
     return render_template("add_expense.html")
+
 
 @app.route("/history")
 @login_required
 def history():
+    user_id = session["user_id"]
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM expenses ORDER BY id DESC;")
+    cursor.execute("SELECT * FROM expenses WHERE user_id=%s ORDER BY id DESC;", (user_id,))
     expenses = cursor.fetchall()
     cursor.close()
     conn.close()
 
     return render_template("history.html", expenses=expenses)
+
+
 @app.route("/delete/<int:id>")
 @login_required
 def delete(id):
+    user_id = session["user_id"]
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM expenses WHERE id=%s", (id,))
+    cursor.execute("DELETE FROM expenses WHERE id=%s AND user_id=%s", (id, user_id))
 
     conn.commit()
     cursor.close()
     conn.close()
 
     return redirect("/history")
+
+
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 @login_required
 def edit(id):
+    user_id = session["user_id"]
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -162,8 +174,8 @@ def edit(id):
         note = request.form["note"]
 
         cursor.execute(
-            "UPDATE expenses SET amount=%s, category=%s, note=%s WHERE id=%s",
-            (amount, category, note, id)
+            "UPDATE expenses SET amount=%s, category=%s, note=%s WHERE id=%s AND user_id=%s",
+            (amount, category, note, id, user_id)
         )
 
         conn.commit()
@@ -172,26 +184,31 @@ def edit(id):
 
         return redirect("/history")
 
-    cursor.execute("SELECT * FROM expenses WHERE id=%s", (id,))
+    cursor.execute("SELECT * FROM expenses WHERE id=%s AND user_id=%s", (id, user_id))
     expense = cursor.fetchone()
     cursor.close()
     conn.close()
 
     return render_template("edit_expense.html", expense=expense)
+
+
 @app.route("/budget", methods=["GET", "POST"])
 @login_required
 def budget():
-
+    user_id = session["user_id"]
     conn = get_db_connection()
     cursor = conn.cursor()
 
     if request.method == "POST":
-
         amount = request.form["budget"]
 
         cursor.execute(
-            "UPDATE budget SET amount=%s WHERE id=1",
-            (amount,)
+            """
+            INSERT INTO budget (amount, user_id)
+            VALUES (%s, %s)
+            ON CONFLICT (user_id) DO UPDATE SET amount = EXCLUDED.amount
+            """,
+            (amount, user_id)
         )
 
         conn.commit()
@@ -200,11 +217,14 @@ def budget():
 
         return redirect("/")
 
-    cursor.execute("SELECT amount FROM budget WHERE id=1;")
-    budget = cursor.fetchone()[0]
+    cursor.execute("SELECT amount FROM budget WHERE user_id=%s;", (user_id,))
+    row = cursor.fetchone()
+    budget_val = row[0] if row else 0
     cursor.close()
     conn.close()
 
-    return render_template("budget.html", budget=budget)
+    return render_template("budget.html", budget=budget_val)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
